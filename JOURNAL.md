@@ -70,6 +70,15 @@ Brought the project from an empty `package.json` to a deployable web app in one 
 - Re-ran the previously-failed workflow once Pages was enabled with `build_type=workflow` (GitHub Actions source). Build + deploy both succeeded.
 - **Site is live: https://celandre1982.github.io/my-ancestral-tree/**. Every push to `main` now auto-deploys.
 
+### Description, timeline events, and per-category export options
+
+- **New Person field:** `description` — a longer biographical paragraph, separate from the existing short `notes` field. Both render on the detail page; the form now has a 5-row description box and a 2-row notes box.
+- **New table:** `events` (Dexie schema v2). Each `LifeEvent` has `{ id, personId, date?, title, description?, kind: 'positive' | 'negative' | 'neutral' }`. Indexed on `personId` and `date`.
+- **New section:** `TimelineSection` on the detail page lists a person's events in chronological order, with a colored dot for sentiment (green/red/gray). Inline add/edit/delete; events without dates sink to the end.
+- **Cascading delete:** removing a person now also wipes their events (in the same Dexie transaction as relationships).
+- **Export schema bumped to v3** to indicate "may contain events". Import accepts v1/v2/v3 — older files just have empty events arrays.
+- **DataMenu has per-category export toggles:** Photos, Timeline events, Descriptions, Notes. Default is all on. Useful when sharing an export with relatives — you might want to strip personal notes or large photos.
+
 ### Search + sort on the people list
 
 - New toolbar above the list: substring search by full name (case-insensitive), sort dropdown (Surname / Given name / Birth date / Death date), and an ↑/↓ button to flip direction. Result count on the right shows `N people` or `N of M` when filtered.

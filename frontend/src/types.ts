@@ -9,8 +9,20 @@ export interface Person {
   birthPlace?: string;
   deathDate?: string;
   deathPlace?: string;
+  description?: string;
   notes?: string;
   photo?: Blob;
+}
+
+export type EventKind = 'positive' | 'negative' | 'neutral';
+
+export interface LifeEvent {
+  id?: number;
+  personId: number;
+  date?: string;
+  title: string;
+  description?: string;
+  kind: EventKind;
 }
 
 export type RelationshipType = 'parent-child' | 'spouse';

@@ -16,6 +16,7 @@ const empty: Person = {
   birthPlace: '',
   deathDate: '',
   deathPlace: '',
+  description: '',
   notes: '',
   photo: undefined,
 };
@@ -167,9 +168,19 @@ export function PersonForm({ editing, onDone }: Props) {
             </label>
           </div>
           <label className="notes">
+            Description
+            <textarea
+              rows={5}
+              placeholder="A short biography — who they were, what they did, where they lived…"
+              value={form.description ?? ''}
+              onChange={(e) => update('description', e.target.value)}
+            />
+          </label>
+          <label className="notes">
             Notes
             <textarea
-              rows={3}
+              rows={2}
+              placeholder="Personal reminders, research questions, etc."
               value={form.notes ?? ''}
               onChange={(e) => update('notes', e.target.value)}
             />

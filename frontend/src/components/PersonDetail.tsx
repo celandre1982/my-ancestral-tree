@@ -15,6 +15,7 @@ import { Avatar } from './Avatar';
 import { NewRelativeForm } from './NewRelativeForm';
 import { PersonPicker } from './PersonPicker';
 import { SpouseSection } from './SpouseSection';
+import { TimelineSection } from './TimelineSection';
 
 interface Props {
   person: Person;
@@ -111,6 +112,9 @@ export function PersonDetail({
               {current.deathPlace && <>Died in {current.deathPlace}.</>}
             </p>
           )}
+          {current.description && (
+            <p className="description-body">{current.description}</p>
+          )}
           {current.notes && <p className="notes-body">{current.notes}</p>}
         </div>
       </div>
@@ -128,6 +132,7 @@ export function PersonDetail({
         }
       />
       <SpouseSection personId={id} onOpen={onOpen} />
+      <TimelineSection personId={id} />
       <RelationSection
         title="Children"
         pickerLabel="Link child"

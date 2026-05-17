@@ -1,5 +1,11 @@
 import { db } from './db';
-import type { Person, Relationship, RelationshipType } from '../types';
+import type {
+  EventKind,
+  LifeEvent,
+  Person,
+  Relationship,
+  RelationshipType,
+} from '../types';
 
 export async function getParents(personId: number): Promise<Person[]> {
   const rels = await db.relationships
@@ -165,15 +171,57 @@ export async function removeRelationshipBetween(
 }
 
 export async function deletePersonCascading(personId: number) {
-  await db.transaction('rw', db.people, db.relationships, async () => {
-    const rels = await db.relationships
-      .filter((r) => r.personA === personId || r.personB === personId)
-      .toArray();
-    await Promise.all(
-      rels.map((r) => r.id != null && db.relationships.delete(r.id)),
-    );
-    await db.people.delete(personId);
-  });
+  await db.transaction(
+    'rw',
+    db.people,
+    db.relationships,
+    db.events,
+    async () => {
+      const rels = await db.relationships
+        .filter((r) => r.personA === personId || r.personB === personId)
+        .toArray();
+      await Promise.all(
+        rels.map((r) => r.id != null && db.relationships.delete(r.id)),
+      );
+      await db.events.where('personId').equals(personId).delete();
+      await db.people.delete(personId);
+    },
+  );
 }
+
+export async function getEventsForPerson(
+  personId: number,
+): Promise<LifeEvent[]> {
+  const events = await db.events
+    .where('personId')
+    .equals(personId)
+    .toArray();
+  events.sort((a, b) => {
+    const ad = a.date ?? '';
+    const bd = b.date ?? '';
+    if (ad === '' && bd !== '') return 1;
+    if (bd === '' && ad !== '') return -1;
+    if (ad === bd) return (a.id ?? 0) - (b.id ?? 0);
+    return ad < bd ? -1 : 1;
+  });
+  return events;
+}
+
+export async function addEvent(event: Omit<LifeEvent, 'id'>): Promise<number> {
+  return (await db.events.add(event)) as number;
+}
+
+export async function updateEvent(
+  id: number,
+  fields: Partial<Omit<LifeEvent, 'id' | 'personId'>>,
+) {
+  await db.events.update(id, fields);
+}
+
+export async function deleteEvent(id: number) {
+  await db.events.delete(id);
+}
+
+export type { LifeEvent, EventKind };
 
 export type { Relationship };
