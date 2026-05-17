@@ -4,6 +4,7 @@ logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 lerna-debug.log*
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
@@ -22,22 +23,16 @@ lib-cov
 coverage
 *.lcov
 
-# nyc test coverage
+# nyc coverage directory
 .nyc_output
 
-# Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
+# Grunt intermediate storage (https://gruntjs.com/)
 .grunt
 
 # Bower dependency directory (https://bower.io/)
 bower_components
 
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons (https://nodejs.org/api/addons.html)
-build/Release
-
-# Dependency directories
+# node-modules (Crucial: ignores both backend and frontend dependencies)
 node_modules/
 jspm_packages/
 
@@ -56,8 +51,17 @@ web_modules/
 # Optional stylelint cache
 .stylelintcache
 
+# Microbundle cache
+.gzippedcache*
+
 # Optional REPL history
 .node_repl_history
+
+# Output directory from倍 env-cmd
+.env-cmdrc.json
+
+# Clean/cache directory used by Merlin
+.main.yml
 
 # Output of 'npm pack'
 *.tgz
@@ -65,12 +69,15 @@ web_modules/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variable files
+# dotenv environment variable files (CRITICAL FOR SECURITY)
 .env
-.env.*
-!.env.example
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+*.env
 
-# parcel-bundler cache (https://parceljs.org/)
+# parcel-cache
 .cache
 .parcel-cache
 
@@ -78,66 +85,27 @@ web_modules/
 .next
 out
 
-# Nuxt.js build / generate output
+# Nuxt.js build output
 .nuxt
 dist
-.output
 
-# Gatsby files
-.cache/
-# Comment in the public line in if your project uses Gatsby and not Next.js
-# https://nextjs.org/blog/next-9-1#public-directory-support
-# public
+# Vite build output (Ignores your compiled React frontend build)
+dist/
+dist-ssr/
+*.local
 
-# vuepress build output
-.vuepress/dist
+# Serverless Webpack directories
+.webpack/
 
-# vuepress v2.x temp directory
-.temp
+# Optional folders
+.target/
 
-# Sveltekit cache directory
-.svelte-kit/
-
-# vitepress build output
-**/.vitepress/dist
-
-# vitepress cache directory
-**/.vitepress/cache
-
-# Docusaurus cache and generated files
-.docusaurus
-
-# Serverless directories
-.serverless/
-
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# Firebase cache directory
-.firebase/
-
-# TernJS port file
-.tern-port
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# pnpm
-.pnpm-store
-
-# yarn v3
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-
-# Vite files
-vite.config.js.timestamp-*
-vite.config.ts.timestamp-*
-.vite/
+# IDEs and editors
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
