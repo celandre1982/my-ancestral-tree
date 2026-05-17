@@ -70,6 +70,12 @@ Brought the project from an empty `package.json` to a deployable web app in one 
 - Re-ran the previously-failed workflow once Pages was enabled with `build_type=workflow` (GitHub Actions source). Build + deploy both succeeded.
 - **Site is live: https://celandre1982.github.io/my-ancestral-tree/**. Every push to `main` now auto-deploys.
 
+### Search + sort on the people list
+
+- New toolbar above the list: substring search by full name (case-insensitive), sort dropdown (Surname / Given name / Birth date / Death date), and an ↑/↓ button to flip direction. Result count on the right shows `N people` or `N of M` when filtered.
+- Empty values always sink to the end of the sort (regardless of direction) so unrecorded dates don't crowd the top.
+- Filter + sort happens in memory after the live query — fine for personal-tree sizes; if we ever hit thousands, push to a Dexie compound index.
+
 ### Cycle prevention in pickers
 
 - **Reported by user:** picking a parent for X showed X's children/descendants, which can never be valid (you can't be both your own grandchild and your own grandparent).

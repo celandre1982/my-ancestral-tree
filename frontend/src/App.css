@@ -259,6 +259,60 @@ button:hover {
   width: 130px;
 }
 
+.people-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.people-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.people-search {
+  flex: 1 1 220px;
+  font: inherit;
+  font-size: 15px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.sort-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text);
+}
+
+.sort-control select {
+  font: inherit;
+  font-size: 14px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.sort-direction {
+  font-size: 16px;
+  padding: 4px 10px;
+  min-width: 36px;
+}
+
+.result-count {
+  margin-left: auto;
+  color: var(--text);
+  font-size: 13px;
+}
+
 .marriage-row {
   flex-wrap: wrap;
 }
