@@ -70,6 +70,13 @@ Brought the project from an empty `package.json` to a deployable web app in one 
 - Re-ran the previously-failed workflow once Pages was enabled with `build_type=workflow` (GitHub Actions source). Build + deploy both succeeded.
 - **Site is live: https://celandre1982.github.io/my-ancestral-tree/**. Every push to `main` now auto-deploys.
 
+### UX fix: create-and-link in one step
+
+- **Reported by user:** "I can add a person, but with no relationship." The original flow required adding both people separately, then opening one and using the picker to link the other.
+- **Fix:** new `NewRelativeForm` component, embedded in each Parents/Spouses/Children section on the detail page. A `+ New person` button toggles a compact inline form (given name, surname, sex) that creates the person and links them as that relationship type in one click.
+- The existing dropdown (link an existing person) is still there alongside it; the new form is additive.
+- The new form intentionally collects *only* name + sex. Dates, places, notes, photos still go through the full edit form — the inline form is for quick branching.
+
 ### Environment quirks worth remembering
 
 - **`NODE_OPTIONS=--use-system-ca` is required** for every local npm/npx command on this machine — there's a corporate/custom root CA in the Windows trust store that Node doesn't pick up by default. Without it, npm fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE`. CI runners don't need this; it's local-only.

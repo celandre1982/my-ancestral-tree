@@ -227,6 +227,36 @@ button:hover {
 
 .picker-row {
   margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.new-relative-form {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+}
+
+.new-relative-form input,
+.new-relative-form select {
+  font: inherit;
+  font-size: 14px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
+.new-relative-form input {
+  width: 130px;
 }
 
 .person-picker {

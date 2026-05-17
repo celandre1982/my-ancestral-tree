@@ -1,4 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useState } from 'react';
 import { db } from '../db/db';
 import {
   addParentChild,
@@ -11,6 +12,7 @@ import {
 } from '../db/queries';
 import type { Person } from '../types';
 import { Avatar } from './Avatar';
+import { NewRelativeForm } from './NewRelativeForm';
 import { PersonPicker } from './PersonPicker';
 
 interface Props {
@@ -46,7 +48,6 @@ export function PersonDetail({
   const spouses = useLiveQuery(() => getSpouses(id), [id]) ?? [];
   const children = useLiveQuery(() => getChildren(id), [id]) ?? [];
 
-  // Re-fetch the latest version of this person so edits show up live.
   const current = useLiveQuery(() => db.people.get(id), [id]) ?? person;
 
   const handleDelete = async () => {
@@ -102,45 +103,36 @@ export function PersonDetail({
 
       <RelationSection
         title="Parents"
+        pickerLabel="Link parent"
+        newLabel="Add as parent"
         people={parents}
+        excludeIds={excludeForParents}
+        link={(parentId) => addParentChild(parentId, id)}
         onOpen={onOpen}
         onRemove={(other) =>
           removeRelationshipBetween('parent-child', other, id)
         }
-        picker={
-          <PersonPicker
-            excludeIds={excludeForParents}
-            label="Add parent"
-            onPick={(parentId) => addParentChild(parentId, id)}
-          />
-        }
       />
       <RelationSection
         title="Spouses"
+        pickerLabel="Link spouse"
+        newLabel="Add as spouse"
         people={spouses}
+        excludeIds={excludeForSpouses}
+        link={(spouseId) => addSpouse(id, spouseId)}
         onOpen={onOpen}
         onRemove={(other) => removeRelationshipBetween('spouse', other, id)}
-        picker={
-          <PersonPicker
-            excludeIds={excludeForSpouses}
-            label="Add spouse"
-            onPick={(spouseId) => addSpouse(id, spouseId)}
-          />
-        }
       />
       <RelationSection
         title="Children"
+        pickerLabel="Link child"
+        newLabel="Add as child"
         people={children}
+        excludeIds={excludeForChildren}
+        link={(childId) => addParentChild(id, childId)}
         onOpen={onOpen}
         onRemove={(other) =>
           removeRelationshipBetween('parent-child', id, other)
-        }
-        picker={
-          <PersonPicker
-            excludeIds={excludeForChildren}
-            label="Add child"
-            onPick={(childId) => addParentChild(id, childId)}
-          />
         }
       />
     </article>
@@ -149,19 +141,27 @@ export function PersonDetail({
 
 interface RelationSectionProps {
   title: string;
+  pickerLabel: string;
+  newLabel: string;
   people: Person[];
+  excludeIds: number[];
+  link: (otherId: number) => Promise<void>;
   onOpen: (p: Person) => void;
   onRemove: (otherId: number) => Promise<void>;
-  picker: React.ReactNode;
 }
 
 function RelationSection({
   title,
+  pickerLabel,
+  newLabel,
   people,
+  excludeIds,
+  link,
   onOpen,
   onRemove,
-  picker,
 }: RelationSectionProps) {
+  const [showNew, setShowNew] = useState(false);
+
   return (
     <section className="relation-section">
       <h3>{title}</h3>
@@ -189,7 +189,27 @@ function RelationSection({
           ))}
         </ul>
       )}
-      <div className="picker-row">{picker}</div>
+      <div className="picker-row">
+        <PersonPicker
+          excludeIds={excludeIds}
+          label={pickerLabel}
+          onPick={(otherId) => link(otherId)}
+        />
+        {showNew ? (
+          <NewRelativeForm
+            addLabel={newLabel}
+            onCreated={async (newId) => {
+              await link(newId);
+              setShowNew(false);
+            }}
+            onCancel={() => setShowNew(false)}
+          />
+        ) : (
+          <button type="button" onClick={() => setShowNew(true)}>
+            + New person
+          </button>
+        )}
+      </div>
     </section>
   );
 }
