@@ -259,6 +259,37 @@ button:hover {
   width: 130px;
 }
 
+.marriage-row {
+  flex-wrap: wrap;
+}
+
+.marriage-dates {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0 4px;
+}
+
+.marriage-dates label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.marriage-dates input {
+  font: inherit;
+  font-size: 14px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text-h);
+}
+
 .person-picker {
   display: inline-flex;
   gap: 6px;

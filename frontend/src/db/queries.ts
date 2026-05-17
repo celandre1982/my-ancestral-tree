@@ -15,15 +15,44 @@ export async function getChildren(personId: number): Promise<Person[]> {
   return loadPeople(rels.map((r) => r.personB));
 }
 
-export async function getSpouses(personId: number): Promise<Person[]> {
+export interface Marriage {
+  relationshipId: number;
+  person: Person;
+  startDate?: string;
+  endDate?: string;
+}
+
+export async function getMarriages(personId: number): Promise<Marriage[]> {
   const asA = await db.relationships
     .where({ type: 'spouse', personA: personId })
     .toArray();
   const asB = await db.relationships
     .where({ type: 'spouse', personB: personId })
     .toArray();
-  const ids = [...asA.map((r) => r.personB), ...asB.map((r) => r.personA)];
-  return loadPeople(ids);
+  const pairs = [
+    ...asA.map((r) => ({ rel: r, otherId: r.personB })),
+    ...asB.map((r) => ({ rel: r, otherId: r.personA })),
+  ];
+  const others = await db.people.bulkGet(pairs.map((p) => p.otherId));
+  const marriages: Marriage[] = [];
+  pairs.forEach((pair, i) => {
+    const person = others[i];
+    if (!person || pair.rel.id == null) return;
+    marriages.push({
+      relationshipId: pair.rel.id,
+      person,
+      startDate: pair.rel.startDate,
+      endDate: pair.rel.endDate,
+    });
+  });
+  // Stable sort: by startDate (unknown first), then by relationshipId
+  marriages.sort((a, b) => {
+    const sa = a.startDate ?? '';
+    const sb = b.startDate ?? '';
+    if (sa !== sb) return sa < sb ? -1 : 1;
+    return a.relationshipId - b.relationshipId;
+  });
+  return marriages;
 }
 
 async function loadPeople(ids: number[]): Promise<Person[]> {
@@ -45,18 +74,38 @@ export async function addParentChild(parentId: number, childId: number) {
   });
 }
 
-export async function addSpouse(a: number, b: number) {
+export async function addSpouse(
+  a: number,
+  b: number,
+  options: { startDate?: string; endDate?: string } = {},
+) {
   if (a === b) return;
   const [lo, hi] = a < b ? [a, b] : [b, a];
-  const existing = await db.relationships
-    .where({ type: 'spouse', personA: lo, personB: hi })
-    .first();
-  if (existing) return;
+  // Multiple marriages between the same pair are allowed (e.g. divorced and
+  // remarried). Polygamy is naturally supported by adding more rows with
+  // different partners. Callers should set endDate on prior marriages first
+  // if they want to record a divorce.
   await db.relationships.add({
     type: 'spouse',
     personA: lo,
     personB: hi,
+    startDate: options.startDate,
+    endDate: options.endDate,
   });
+}
+
+export async function updateMarriage(
+  relationshipId: number,
+  fields: { startDate?: string; endDate?: string },
+) {
+  await db.relationships.update(relationshipId, {
+    startDate: fields.startDate || undefined,
+    endDate: fields.endDate || undefined,
+  });
+}
+
+export async function deleteRelationship(relationshipId: number) {
+  await db.relationships.delete(relationshipId);
 }
 
 export async function removeRelationshipBetween(

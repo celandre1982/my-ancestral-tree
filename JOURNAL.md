@@ -70,6 +70,18 @@ Brought the project from an empty `package.json` to a deployable web app in one 
 - Re-ran the previously-failed workflow once Pages was enabled with `build_type=workflow` (GitHub Actions source). Build + deploy both succeeded.
 - **Site is live: https://celandre1982.github.io/my-ancestral-tree/**. Every push to `main` now auto-deploys.
 
+### Marriage history (multiple, sequential, polygamous)
+
+- **Reported by user:** spouse model needed to support divorce + remarriage to another person, remarriage to the *same* person, and concurrent multiple spouses.
+- The schema already had `Relationship.startDate` / `endDate`, but `addSpouse` deduplicated A↔B pairs and the UI never surfaced the dates — so remarriage-to-same-person silently no-op'd, and end dates were invisible.
+- **Fix:**
+  - `addSpouse` no longer blocks duplicates — multiple rows between the same pair are allowed; the user records the timeline via dates.
+  - New `getMarriages` query returns `{ relationshipId, person, startDate, endDate }` sorted by start year.
+  - New `SpouseSection` component replaces `RelationSection` for spouses. Each row shows `m. YYYY–YYYY` (or `m. YYYY` for current, `ended YYYY` if only the end is known), with a **Dates** toggle that opens inline start/end pickers and a **Remove** button that deletes only that specific marriage row (person stays).
+  - Picker no longer excludes existing spouses, so re-marriage to the same person is just another **Link spouse** click after the previous marriage gets an end date.
+- Polygamy is naturally supported — concurrent rows for different partners without end dates.
+- Old `getSpouses` helper removed (no callers).
+
 ### UX fix: create-and-link in one step
 
 - **Reported by user:** "I can add a person, but with no relationship." The original flow required adding both people separately, then opening one and using the picker to link the other.

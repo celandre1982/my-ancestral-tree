@@ -3,17 +3,16 @@ import { useState } from 'react';
 import { db } from '../db/db';
 import {
   addParentChild,
-  addSpouse,
   deletePersonCascading,
   getChildren,
   getParents,
-  getSpouses,
   removeRelationshipBetween,
 } from '../db/queries';
 import type { Person } from '../types';
 import { Avatar } from './Avatar';
 import { NewRelativeForm } from './NewRelativeForm';
 import { PersonPicker } from './PersonPicker';
+import { SpouseSection } from './SpouseSection';
 
 interface Props {
   person: Person;
@@ -45,7 +44,6 @@ export function PersonDetail({
   const id = person.id!;
 
   const parents = useLiveQuery(() => getParents(id), [id]) ?? [];
-  const spouses = useLiveQuery(() => getSpouses(id), [id]) ?? [];
   const children = useLiveQuery(() => getChildren(id), [id]) ?? [];
 
   const current = useLiveQuery(() => db.people.get(id), [id]) ?? person;
@@ -62,7 +60,6 @@ export function PersonDetail({
   };
 
   const excludeForParents = [id, ...parents.map((p) => p.id!)];
-  const excludeForSpouses = [id, ...spouses.map((p) => p.id!)];
   const excludeForChildren = [id, ...children.map((p) => p.id!)];
 
   return (
@@ -113,16 +110,7 @@ export function PersonDetail({
           removeRelationshipBetween('parent-child', other, id)
         }
       />
-      <RelationSection
-        title="Spouses"
-        pickerLabel="Link spouse"
-        newLabel="Add as spouse"
-        people={spouses}
-        excludeIds={excludeForSpouses}
-        link={(spouseId) => addSpouse(id, spouseId)}
-        onOpen={onOpen}
-        onRemove={(other) => removeRelationshipBetween('spouse', other, id)}
-      />
+      <SpouseSection personId={id} onOpen={onOpen} />
       <RelationSection
         title="Children"
         pickerLabel="Link child"
