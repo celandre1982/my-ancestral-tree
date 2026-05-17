@@ -4,6 +4,8 @@ import { db } from '../db/db';
 import {
   addParentChild,
   deletePersonCascading,
+  getAllAncestorIds,
+  getAllDescendantIds,
   getChildren,
   getParents,
   removeRelationshipBetween,
@@ -45,6 +47,10 @@ export function PersonDetail({
 
   const parents = useLiveQuery(() => getParents(id), [id]) ?? [];
   const children = useLiveQuery(() => getChildren(id), [id]) ?? [];
+  const ancestorIds =
+    useLiveQuery(() => getAllAncestorIds(id), [id]) ?? [];
+  const descendantIds =
+    useLiveQuery(() => getAllDescendantIds(id), [id]) ?? [];
 
   const current = useLiveQuery(() => db.people.get(id), [id]) ?? person;
 
@@ -59,8 +65,19 @@ export function PersonDetail({
     onClose();
   };
 
-  const excludeForParents = [id, ...parents.map((p) => p.id!)];
-  const excludeForChildren = [id, ...children.map((p) => p.id!)];
+  // Parents picker hides self, existing parents, and anyone descended from
+  // this person (they can't also be an ancestor — that would be a cycle).
+  const excludeForParents = [
+    id,
+    ...parents.map((p) => p.id!),
+    ...descendantIds,
+  ];
+  // Children picker hides self, existing children, and any ancestor.
+  const excludeForChildren = [
+    id,
+    ...children.map((p) => p.id!),
+    ...ancestorIds,
+  ];
 
   return (
     <article className="person-detail">

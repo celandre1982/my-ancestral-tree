@@ -70,6 +70,13 @@ Brought the project from an empty `package.json` to a deployable web app in one 
 - Re-ran the previously-failed workflow once Pages was enabled with `build_type=workflow` (GitHub Actions source). Build + deploy both succeeded.
 - **Site is live: https://celandre1982.github.io/my-ancestral-tree/**. Every push to `main` now auto-deploys.
 
+### Cycle prevention in pickers
+
+- **Reported by user:** picking a parent for X showed X's children/descendants, which can never be valid (you can't be both your own grandchild and your own grandparent).
+- **Fix:** new `getAllAncestorIds` / `getAllDescendantIds` walk the parent-child graph BFS-style. PersonDetail subscribes to both via `useLiveQuery` so they stay current. The parents picker now also excludes all descendants; the children picker excludes all ancestors.
+- Spouses picker intentionally not constrained by lineage — historical data sometimes records consanguineous unions, and the user can sort it out manually.
+- Perf: each traversal hits indexed Dexie queries level by level. Realistic personal trees (hundreds of people) finish in <10ms. If we ever hit a wall on 10k+ trees, swap to an incremental in-memory adjacency cache.
+
 ### Marriage history (multiple, sequential, polygamous)
 
 - **Reported by user:** spouse model needed to support divorce + remarriage to another person, remarriage to the *same* person, and concurrent multiple spouses.

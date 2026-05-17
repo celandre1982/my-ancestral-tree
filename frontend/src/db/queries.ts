@@ -15,6 +15,46 @@ export async function getChildren(personId: number): Promise<Person[]> {
   return loadPeople(rels.map((r) => r.personB));
 }
 
+export async function getAllAncestorIds(personId: number): Promise<number[]> {
+  return walkLineage(personId, 'up');
+}
+
+export async function getAllDescendantIds(personId: number): Promise<number[]> {
+  return walkLineage(personId, 'down');
+}
+
+async function walkLineage(
+  startId: number,
+  direction: 'up' | 'down',
+): Promise<number[]> {
+  const visited = new Set<number>([startId]);
+  const found = new Set<number>();
+  let frontier: number[] = [startId];
+  while (frontier.length > 0) {
+    const next: number[] = [];
+    for (const id of frontier) {
+      const rels =
+        direction === 'up'
+          ? await db.relationships
+              .where({ type: 'parent-child', personB: id })
+              .toArray()
+          : await db.relationships
+              .where({ type: 'parent-child', personA: id })
+              .toArray();
+      for (const r of rels) {
+        const otherId = direction === 'up' ? r.personA : r.personB;
+        if (!visited.has(otherId)) {
+          visited.add(otherId);
+          found.add(otherId);
+          next.push(otherId);
+        }
+      }
+    }
+    frontier = next;
+  }
+  return [...found];
+}
+
 export interface Marriage {
   relationshipId: number;
   person: Person;
