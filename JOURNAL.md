@@ -62,9 +62,18 @@ Brought the project from an empty `package.json` to a deployable web app in one 
 - **One-time setup the user has to do:** push the code, then in the GitHub repo go to **Settings → Pages → Source: GitHub Actions**.
 - Live URL when deployed: `https://celandre1982.github.io/my-ancestral-tree/`.
 
+### Deploy went live (later that day)
+
+- First push to GitHub blocked by an OpenSSL cert verification error — same root cause as the npm CA issue. Worked around per-command with `git -c http.sslBackend=schannel push origin main` (SChannel reads the Windows trust store).
+- Tried to enable Pages via API and hit `422 Your current plan does not support GitHub Pages for this repository` — the repo was **private**, and Pages on private repos requires a paid GitHub plan.
+- **Decision:** flipped the repo to **public** rather than upgrade or switch hosts. Justification: the code has no secrets, family data never leaves the user's browser, and public is the lowest-friction path. Worth flagging: this changes the privacy posture of the *code* (everyone can read it), not the *data* (still browser-local).
+- Re-ran the previously-failed workflow once Pages was enabled with `build_type=workflow` (GitHub Actions source). Build + deploy both succeeded.
+- **Site is live: https://celandre1982.github.io/my-ancestral-tree/**. Every push to `main` now auto-deploys.
+
 ### Environment quirks worth remembering
 
 - **`NODE_OPTIONS=--use-system-ca` is required** for every local npm/npx command on this machine — there's a corporate/custom root CA in the Windows trust store that Node doesn't pick up by default. Without it, npm fails with `UNABLE_TO_VERIFY_LEAF_SIGNATURE`. CI runners don't need this; it's local-only.
+- **`git -c http.sslBackend=schannel ...` is required** for every git remote operation (push, fetch, clone). Same root cause as the npm one — git's bundled OpenSSL doesn't read the Windows trust store; SChannel does.
 
 ### What's *not* done
 
