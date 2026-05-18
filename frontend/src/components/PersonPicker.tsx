@@ -14,16 +14,28 @@ function displayName(p: Person) {
   return name || '(unnamed)';
 }
 
+function sortKey(p: Person) {
+  return `${(p.surname ?? '').trim()} ${(p.givenName ?? '').trim()}`
+    .trim()
+    .toLowerCase();
+}
+
 export function PersonPicker({ excludeIds, onPick, label = 'Add' }: Props) {
   const [selected, setSelected] = useState<string>('');
-  const people = useLiveQuery(
-    () => db.people.orderBy('surname').toArray(),
-    [],
-  );
+  const people = useLiveQuery(() => db.people.toArray(), []);
 
   if (!people) return null;
   const exclude = new Set(excludeIds);
-  const candidates = people.filter((p) => p.id != null && !exclude.has(p.id));
+  const candidates = people
+    .filter((p) => p.id != null && !exclude.has(p.id))
+    .sort((a, b) => {
+      const ak = sortKey(a);
+      const bk = sortKey(b);
+      if (ak === '' && bk !== '') return 1;
+      if (bk === '' && ak !== '') return -1;
+      if (ak === bk) return 0;
+      return ak < bk ? -1 : 1;
+    });
 
   if (candidates.length === 0) {
     return <span className="picker-empty">No people available.</span>;
