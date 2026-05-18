@@ -4,9 +4,10 @@ A running record of what's been built, why, and what to know about it. Newest en
 
 ---
 
-## 2026-05-18 — Sort children chronologically
+## 2026-05-18 — Sort fixes
 
-`getParents` and `getChildren` now sort by birth date ascending, falling back to alphabetical (surname, then given name) when a birth date is missing. People without a birth date sort to the end. Standard genealogy convention — the eldest child appears first. Affects both the detail page lists and the descendant tree (which uses `getChildren` under the hood).
+- **Parents & children:** `getParents` and `getChildren` now sort by birth date ascending, falling back to alphabetical (surname, then given name) when a birth date is missing. People without a birth date sort to the end. Standard genealogy convention — the eldest child appears first. Affects both the detail page lists and the descendant tree (which uses `getChildren` under the hood).
+- **Main people list:** the surname/given-name sort now uses combined `"surname givenName"` (or vice versa) as the sort key, so people without a surname slot into the alphabet on their given name instead of all bunching at the end. Earlier behavior made the list look unsorted when most entries had no surname filled in.
 
 ---
 

@@ -31,6 +31,25 @@ function lifespan(p: Person) {
   return `${b}–${d}`;
 }
 
+function sortKeyFor(p: Person, by: SortKey): string {
+  switch (by) {
+    case 'surname':
+      // Fall back to given name when surname is missing so people without
+      // a surname still slot into the alphabet instead of all bunching at
+      // the end.
+      return `${(p.surname ?? '').trim()} ${(p.givenName ?? '').trim()}`
+        .trim()
+        .toLowerCase();
+    case 'givenName':
+      return `${(p.givenName ?? '').trim()} ${(p.surname ?? '').trim()}`
+        .trim()
+        .toLowerCase();
+    case 'birthDate':
+    case 'deathDate':
+      return p[by] ?? '';
+  }
+}
+
 export function PersonList({ onEdit, onOpen }: Props) {
   const people = useLiveQuery(() => db.people.toArray());
   const [query, setQuery] = useState('');
@@ -46,8 +65,8 @@ export function PersonList({ onEdit, onOpen }: Props) {
         )
       : people;
     const sorted = [...filtered].sort((a, b) => {
-      const av = (a[sortBy] ?? '') as string;
-      const bv = (b[sortBy] ?? '') as string;
+      const av = sortKeyFor(a, sortBy);
+      const bv = sortKeyFor(b, sortBy);
       // Push empty values to the end regardless of direction.
       if (av === '' && bv !== '') return 1;
       if (bv === '' && av !== '') return -1;
