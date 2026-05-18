@@ -4,6 +4,12 @@ A running record of what's been built, why, and what to know about it. Newest en
 
 ---
 
+## 2026-05-18 — Sort children chronologically
+
+`getParents` and `getChildren` now sort by birth date ascending, falling back to alphabetical (surname, then given name) when a birth date is missing. People without a birth date sort to the end. Standard genealogy convention — the eldest child appears first. Affects both the detail page lists and the descendant tree (which uses `getChildren` under the hood).
+
+---
+
 ## 2026-05-17 — Initial build (milestones 1–6)
 
 Brought the project from an empty `package.json` to a deployable web app in one session.

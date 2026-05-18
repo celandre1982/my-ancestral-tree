@@ -11,14 +11,30 @@ export async function getParents(personId: number): Promise<Person[]> {
   const rels = await db.relationships
     .where({ type: 'parent-child', personB: personId })
     .toArray();
-  return loadPeople(rels.map((r) => r.personA));
+  return sortByBirthThenName(await loadPeople(rels.map((r) => r.personA)));
 }
 
 export async function getChildren(personId: number): Promise<Person[]> {
   const rels = await db.relationships
     .where({ type: 'parent-child', personA: personId })
     .toArray();
-  return loadPeople(rels.map((r) => r.personB));
+  return sortByBirthThenName(await loadPeople(rels.map((r) => r.personB)));
+}
+
+function sortByBirthThenName(people: Person[]): Person[] {
+  return [...people].sort((a, b) => {
+    const ab = a.birthDate ?? '';
+    const bb = b.birthDate ?? '';
+    if (ab && bb && ab !== bb) return ab < bb ? -1 : 1;
+    // Missing birth dates sink to the end; alpha-sort among them (and among
+    // any ties on the same birth date).
+    if (ab && !bb) return -1;
+    if (!ab && bb) return 1;
+    const an = `${a.surname} ${a.givenName}`.toLowerCase();
+    const bn = `${b.surname} ${b.givenName}`.toLowerCase();
+    if (an === bn) return 0;
+    return an < bn ? -1 : 1;
+  });
 }
 
 export async function getAllAncestorIds(personId: number): Promise<number[]> {
